@@ -96,22 +96,22 @@ requestAnimationFrame / setTimeout**。所有动效必须由 `useCurrentFrame()`
 第 1 幕 HOOK        帧 0–120    (0.0–4.0s)
   墨黑背景，中央浮出一行竖排大字：「在麦当劳减肥，／一天能吃什么？」
   字逐个跳入（每字错峰 4 帧，spring 回弹），下方掉一行灰色小字
-  「22 岁 · 170cm · 80kg · 目标 65kg」；最后 12 帧整体提亮 闪一下，切入白底。
+  「28 岁 · 172cm · 78kg · 目标 70kg」；最后 12 帧整体提亮闪一下，切入白底。
 
 第 2 幕 PROFILE     帧 120–300  (4.0–10.0s)
   中央落下白色圆角卡片「你的身体档案」，从下方 60px spring 弹入。
   六行字段依次点亮填入（每行错峰 8 帧）：
-    性别 男 ／ 年龄 22 ／ 身高 170 cm ／ 体重 80 → 65 kg ／ 周期 20 周 ／ 几乎不动
-  卡片页脚两行实时跳数：「今日目标 1,933 kcal」「预计 0.20 kg / 周」
+    性别 男 ／ 年龄 28 ／ 身高 172 cm ／ 体重 78 → 70 kg ／ 周期 12 周 ／ 轻度活动
+  卡片页脚两行实时跳数：「今日目标 1,914 kcal」「预计 0.43 kg / 周」
 
 第 3 幕 ENERGY      帧 300–480  (10.0–16.0s)
   卡片原地翻成「今日能量账本」，四行数字从上到下依次累加（用 NumberFlow）：
-    基础代谢 BMR      1,758 kcal
-    日常活动 PAL 1.20  2,109 kcal
-    运动消耗（日均）       41 kcal
+    基础代谢 BMR      1,720 kcal
+    日常活动 PAL 1.30  2,236 kcal
+    运动消耗（日均）       156 kcal
     ────────────────────────
-    每日总消耗 TDEE   2,150 kcal
-  随后右侧画一圈红色环形进度到 90%，环心数字停在「1,933」，下方标注「缺口 217 kcal」
+    每日总消耗 TDEE   2,392 kcal
+  随后右侧画一圈红色环形进度到 80%，环心数字停在「1,914」，下方标注「缺口 478 kcal」
 
 第 4 幕 MEALS       帧 480–720  (16.0–24.0s)
   四张餐卡（早/午/晚/加餐）从底部依次上升入场，每张间隔 22 帧。
@@ -140,7 +140,7 @@ src/data/plan.json 由配餐引擎产出（命令附在文末注释里），字�
              totals  { kcal, protein, fat, carb, sodium, sugar, fiber, calcium, sat_fat } }
   total    { kcal, protein, fat, carb, sodium, sugar, fiber, calcium, sat_fat }
   actual_share_pct { protein, fat, carb }   ← 整型百分数
-组件里一律从 data/index.ts 读，不要在 JSX 里写死 1758 / 2150 这种数字。
+组件里一律从 data/index.ts 读，不要在 JSX 里写死 1720 / 2392 这种数字。
 如果只是参展演示、拿不到 plan.json，就按下面这组真实值先建一份占位 file，
 并在 data/index.ts 顶部注明「占位数据，跑通气后替换」：
 
