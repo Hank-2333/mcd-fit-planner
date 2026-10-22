@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>麦搭 · 用麦当劳搭出你的一天</title>
+<meta name="description" content="输入身体数据与每日运动量，计算每日能量消耗，结合《中国居民膳食指南》与麦当劳中国官方营养数据，生成一整天的麦当劳配餐建议。" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 44" aria-hidden="true">
+        <g fill="none" stroke="#ffc72c" stroke-width="7">
+          <path d="M10 42V17a8 10.5 0 0 1 16 0v25" />
+          <path d="M22 42V17a8 10.5 0 0 1 16 0v25" />
+        </g>
+      </svg>
+      <div class="brand-text">
+        <strong>麦搭</strong>
+        <span>MCD FIT PLANNER</span>
+      </div>
+    </div>
+    <nav class="topnav">
+      <a href="#profile">身体档案</a>
+      <a href="#meals">今日配餐</a>
+      <a href="#guide">营养对照</a>
+      <a class="topnav-cta" href="https://www.mcdonalds.com.cn/top/map" target="_blank" rel="noopener">找餐厅</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">中国居民膳食指南 × 麦当劳官方营养数据</p>
+      <h1>用麦当劳，<br /><em>搭</em>出你的一天</h1>
+      <p class="lede">
+        填入身体情况与每日运动量，算出你今天到底能吃多少；
+        再从 <strong id="skuCount">132</strong> 款麦当劳餐品里，按能量、蛋白质、脂肪、钠和膳食纤维的目标，
+        为早、午、晚和加餐各配一套组合。
+      </p>
+      <div class="hero-tags">
+        <span>Mifflin-St Jeor 代谢公式</span>
+        <span>MET 运动消耗</span>
+        <span>指南宏量供能比</span>
+        <span id="dataSource">数据源：官网快照 · 2025-04</span>
+      </div>
+    </div>
+    <div class="hero-figure" aria-hidden="true">
+      <div class="hero-card">
+        <div class="hero-card-top">
+          <span class="dot dot-y"></span><span class="dot dot-r"></span><span class="dot dot-w"></span>
+          <span class="hero-card-title">今日能量预算</span>
+        </div>
+        <div class="hero-kcal"><span id="heroKcal">1 650</span><small>kcal</small></div>
+        <div class="hero-bars">
+          <i style="--w:78%;--c:#DB0007"></i>
+          <i style="--w:52%;--c:#FFBC0D"></i>
+          <i style="--w:36%;--c:#2D2D2D"></i>
+        </div>
+        <div class="hero-legend">
+          <span><b class="lg-r"></b>碳水</span>
+          <span><b class="lg-y"></b>脂肪</span>
+          <span><b class="lg-k"></b>蛋白质</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <!-- 一、身体档案（摘要，点击弹框修改） -->
+  <section class="card profile-card" id="profile">
+    <div class="profile-head">
+      <h2><span class="step">01</span>你的身体档案</h2>
+      <button class="btn btn-ghost btn-sm" id="editProfile">修改档案</button>
+    </div>
+    <div class="profile-chips" id="summaryChips"></div>
+    <p class="hint">数据只在本机浏览器里计算，不会上传。下面的能量、配餐和营养对照都按这份档案实时重算。</p>
+  </section>
+
+  <!-- 二、能量结果 -->
+  <section class="card" id="energy">
+    <div class="card-head">
+      <h2><span class="step">02</span>你的每日能量账本</h2>
+      <p class="hint">基础代谢 + 日常活动 + 运动消耗，再按目标体重与周期算缺口。</p>
+    </div>
+
+    <div class="energy-layout">
+      <div class="energy-stats">
+        <div class="stat">
+          <span class="stat-label">基础代谢 BMR</span>
+          <strong><span id="bmrVal">—</span><i>kcal</i></strong>
+          <span class="stat-foot" id="bmrFoot">Mifflin-St Jeor</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">日常活动</span>
+          <strong><span id="palVal">—</span><i>kcal</i></strong>
+          <span class="stat-foot" id="palFoot">PAL × BMR</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">运动消耗</span>
+          <strong><span id="exVal">—</span><i>kcal</i></strong>
+          <span class="stat-foot" id="exFoot">日均摊分</span>
+        </div>
+        <div class="stat stat-key">
+          <span class="stat-label">每日总消耗 TDEE</span>
+          <strong><span id="tdeeVal">—</span><i>kcal</i></strong>
+          <span class="stat-foot" id="bmiFoot">BMI —</span>
+        </div>
+      </div>
+
+      <div class="energy-ring">
+        <svg viewBox="0 0 160 160" class="ring">
+          <circle cx="80" cy="80" r="66" class="ring-bg"></circle>
+          <circle cx="80" cy="80" r="66" class="ring-fg" id="ringFg"></circle>
+        </svg>
+        <div class="ring-center">
+          <span id="targetVal">—</span>
+          <small>今日目标 kcal</small>
+        </div>
+      </div>
+
+      <div class="energy-side">
+        <div class="mini">
+          <span>建议缺口</span>
+          <strong id="deficitVal">—</strong>
+        </div>
+        <div class="mini">
+          <span>预计速度</span>
+          <strong id="paceVal">—</strong>
+        </div>
+        <div class="mini">
+          <span>蛋白质目标</span>
+          <strong id="proteinTargetVal">—</strong>
+        </div>
+        <p class="energy-note" id="energyNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 三、配餐 -->
+  <section class="card" id="meals">
+    <div class="card-head">
+      <h2><span class="step">03</span>今日配餐</h2>
+      <p class="hint">按 25% / 35% / 30% / 10% 分配全天热量，逐餐挑选组合。</p>
+    </div>
+    <div class="meal-grid" id="mealGrid"></div>
+
+    <div class="day-total">
+      <div class="day-total-main">
+        <span>全天合计</span>
+        <strong><span id="dayKcal">—</span><i>kcal</i></strong>
+        <span class="day-diff" id="dayDiff"></span>
+      </div>
+      <div class="day-total-bars" id="dayBars"></div>
+      <button class="btn btn-ghost btn-sm" id="shuffleAll">换一整套</button>
+    </div>
+  </section>
+
+  <!-- 四、营养对照 -->
+  <section class="card" id="guide">
+    <div class="card-head">
+      <h2><span class="step">04</span>与《中国居民膳食指南》对照</h2>
+      <p class="hint">参考《中国居民膳食指南（2022）》与《中国居民膳食营养素参考摄入量（2023）》。</p>
+    </div>
+    <div class="table-wrap">
+      <table class="guide-table">
+        <thead>
+          <tr><th>指标</th><th>今日配餐</th><th>推荐范围</th><th>达成</th></tr>
+        </thead>
+        <tbody id="guideBody"></tbody>
+      </table>
+    </div>
+    <div class="guide-tips" id="guideTips"></div>
+  </section>
+
+  <!-- 五、门店 -->
+  <section class="card cta-card" id="stores">
+    <div class="cta-copy">
+      <h2>想吃？先看哪家店最近</h2>
+      <p>配餐只是参考，实际供应、价格与营业时间以门店为准。打开麦当劳官方门店地图，选好门店再用官方营养计算器核对。</p>
+      <div class="cta-buttons">
+        <a class="btn btn-red" href="https://www.mcdonalds.com.cn/top/map" target="_blank" rel="noopener">查找附近餐厅</a>
+        <a class="btn btn-ghost" href="https://www.mcdonalds.com.cn/nutrition_calculator" target="_blank" rel="noopener">官方营养计算器</a>
+      </div>
+      <ul class="store-list" id="storeList" hidden></ul>
+    </div>
+    <div class="cta-art" aria-hidden="true">
+      <svg viewBox="0 0 220 160">
+        <rect x="10" y="18" width="200" height="124" rx="14" fill="#FFF3CC" />
+        <path d="M30 120c26-30 44-8 62-26s34-34 56-16 32 40 42 42" fill="none" stroke="#FFBC0D" stroke-width="6" stroke-linecap="round" />
+        <circle cx="150" cy="60" r="17" fill="#DB0007" />
+        <text x="150" y="66" text-anchor="middle" font-size="16" font-weight="700" fill="#fff" font-family="Arial">M</text>
+        <circle cx="52" cy="46" r="9" fill="#2D2D2D" opacity=".15" />
+      </svg>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>
+      本页面为「麦当劳程序员节创意开发大赛」参赛作品，由参赛者独立开发，<strong>非麦当劳官方产品</strong>。
+      营养数据取自麦当劳中国官网营养计算器（官方标注更新于 2025 年 4 月）；能量与营养素目标参考《中国居民膳食指南（2022）》。
+      输出仅用于饮食搭配参考，不构成医疗或营养专业建议；如有慢性疾病、孕期或特殊健康状况，请咨询医生或注册营养师。
+    </p>
+  </div>
+</footer>
+
+
+<!-- 身体档案弹框 -->
+<div class="modal" id="profileModal" hidden>
+  <div class="modal-backdrop" data-close="1"></div>
+  <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <header class="modal-head">
+      <div>
+        <h2 id="modalTitle">先填一下你的身体档案</h2>
+        <p>填完立刻给出今天的热量预算，随时可以改。</p>
+      </div>
+      <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
+    </header>
+
+    <div class="modal-body">
+<div class="form-grid">
+      <div class="modal-section-title">基本信息</div>
+<div class="field">
+        <label>性别</label>
+        <div class="pills" id="sexPills">
+          <button type="button" class="pill is-on" data-sex="male">男</button>
+          <button type="button" class="pill" data-sex="female">女</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="age">年龄 <b>岁</b></label>
+        <input type="number" id="age" value="28" min="14" max="90" step="1" />
+      </div>
+
+      <div class="field">
+        <label for="height">身高 <b>cm</b></label>
+        <input type="number" id="height" value="172" min="130" max="220" step="1" />
+      </div>
+
+      <div class="field">
+        <label for="weight">当前体重 <b>kg</b></label>
+        <input type="number" id="weight" value="78" min="35" max="200" step="0.1" />
+      </div>
+
+      <div class="field">
+        <label for="target">目标体重 <b>kg</b></label>
+        <input type="number" id="target" value="70" min="35" max="200" step="0.1" />
+      </div>
+
+      <div class="field">
+        <label for="weeks">希望达成周期 <b>周</b></label>
+        <input type="number" id="weeks" value="12" min="2" max="52" step="1" />
+      </div>
+
+      <div class="field field-wide">
+        <label for="pal">日常活动水平<i class="tip" data-tip="不含刻意的运动训练，只算上班、通勤、家务这类日常活动">?</i></label>
+        <select id="pal">
+          <option value="1.2">几乎不动（卧床 / 居家办公）</option>
+          <option value="1.3" selected>久坐为主（办公室，少量走动）</option>
+          <option value="1.4">轻度活动（经常站立、通勤步行）</option>
+          <option value="1.5">中度活动（销售、护士、教师等）</option>
+          <option value="1.65">高强度体力（搬运、建筑、农活）</option>
+        </select>
+      </div>
+      <div class="modal-section-title">活动与运动</div>
+<div class="field">
+        <label for="exType">运动项目</label>
+        <select id="exType">
+          <option value="0">不额外运动</option>
+          <option value="4.3">快走（6 km/h）</option>
+          <option value="7" selected>慢跑（8 km/h）</option>
+          <option value="9.8">跑步（10 km/h 以上）</option>
+          <option value="6.8">骑行</option>
+          <option value="6">游泳</option>
+          <option value="5">力量训练</option>
+          <option value="8.5">HIIT / 跳绳</option>
+          <option value="6.5">球类运动</option>
+          <option value="2.5">瑜伽 / 拉伸</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="exDays">每周运动 <b>天</b></label>
+        <input type="number" id="exDays" value="3" min="0" max="7" step="1" />
+      </div>
+
+      <div class="field">
+        <label for="exMin">每次 <b>分钟</b></label>
+        <input type="number" id="exMin" value="40" min="0" max="240" step="5" />
+      </div>
+      <div class="modal-section-title">饮食偏好 · 可选，只影响候选池，不改变营养目标</div>
+      <div class="field field-wide">
+        <div class="chips" id="prefChips">
+          <button type="button" class="chip" data-pref="no_beef">不吃牛肉</button>
+          <button type="button" class="chip" data-pref="no_spicy">不吃辣</button>
+          <button type="button" class="chip" data-pref="no_fish">不吃鱼</button>
+          <button type="button" class="chip" data-pref="low_sodium">尽量低钠</button>
+          <button type="button" class="chip" data-pref="high_protein">高蛋白优先</button>
+        </div>
+      </div>
+    </div>
+      <p class="form-note" id="formNote"></p>
+    </div>
+
+    <footer class="modal-foot">
+      <div class="modal-preview">
+        <span>今日目标</span>
+        <strong><span id="previewKcal">—</span><i>kcal</i></strong>
+        <span class="modal-preview-sub" id="previewPace"></span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="resetBtn" type="button">载入示例</button>
+        <button class="btn btn-red" id="genBtn" type="button">生成配餐</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<script src="data/nutrition.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

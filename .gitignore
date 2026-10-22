@@ -1,0 +1,13 @@
+# 本地凭证 —— 绝不提交
+.mcd_mcp_token
+.env
+*.token
+*.secret
+
+# 本地生成物
+plan-*.html
+data/mcp_nutrition_raw.json
+
+# Python
+__pycache__/
+*.pyc
